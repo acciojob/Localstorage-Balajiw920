@@ -26,9 +26,56 @@
   </div>
 
 <script>
-  const addItems = document.querySelector('.add-items');
-  const itemsList = document.querySelector('.plates');
-  const items = [];
+//   const addItems = document.querySelector('.add-items');
+//   const itemsList = document.querySelector('.plates');
+//   const items = [];
+  
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+const addItemsInput = document.querySelector('.add-items input');
+const platesList = document.querySelector('.plates');
+
+// Load existing items from localStorage
+let items = JSON.parse(localStorage.getItem('items')) || [];
+
+function addItem(event) {
+  event.preventDefault();
+  const text = this.querySelector('[name=item]').value;
+  const item = {
+    text,
+    done: false
+  };
+  items.push(item);
+  populateList(items, platesList);
+  // Store items in localStorage
+  localStorage.setItem('items', JSON.stringify(items));
+  this.reset();
+}
+
+function toggleDone(event) {
+  if (!event.target.matches('input')) return; // skip unless input
+  const el = event.target;
+  const index = el.dataset.index;
+  items[index].done = !items[index].done;
+  localStorage.setItem('items', JSON.stringify(items));
+  populateList(items, platesList);
+}
+
+function populateList(items = [], platesList) {
+  platesList.innerHTML = items.map((item, i) => {
+    return `
+      <li>
+        <input type="checkbox" data-index="${i}" id="item${i}" ${item.done ? 'checked' : ''} />
+        <label for="item${i}">${item.text}</label>
+      </li>
+    `;
+  }).join('');
+}
+
+populateList(items, platesList);
+
+document.querySelector('.add-items').addEventListener('submit', addItem);
+platesList.addEventListener('click', toggleDone);
+
 
 </script>
 
